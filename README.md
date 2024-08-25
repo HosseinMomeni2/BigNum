@@ -1,4 +1,4 @@
-# BigInt
+# BigNum
 
 Today, I was in the middle of a contest, and one of my answers kept getting a wrong answer from the judge! I found that the problem was with large numbers, which was kind of weird considering that I was using “long long” variables. @-@
 
