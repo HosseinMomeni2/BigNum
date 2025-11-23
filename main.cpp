@@ -6,7 +6,7 @@ using namespace std;
 ///this class includes a vector that contains digits of the big int
 class bignum
 {
-    vector<int> num;
+    vector<unsigned int> num;
     int size; ///it's good to store the size of the number
 
 public:
@@ -14,12 +14,12 @@ public:
     ///constructor creates the vector and sets the size
     explicit bignum(int size = 50)
     {
-        this->num = vector<int>(size);
+        this->num = vector<unsigned int>(size, 0);
         this->size = size;
     }
 
     ///this operator returns a specific digit
-    int& operator[](int index)
+    unsigned int& operator[](int index)
     {
         return this->num[index];
     }
@@ -34,51 +34,30 @@ public:
         this->num = n.num;
         return *this;
     }
-    bignum& operator=(string n)
+    bignum& operator=(string& n)
     {
-        this->num = vector<int>(this->size);
+        this->num = vector<unsigned int>(this->size);
 
-        string nn = "";
-        for(int i=n.size()-1; i>=0; i--) nn += n[i];
-//        cout << "from operator=, nn : " << nn << endl; ///debug line
+        std::reverse(n.begin(), n.end());
 
-        int m = std::min((int)this->size, (int)nn.size());
-//        cout << "m : " << m << endl;
+        int m = std::min((int)this->size, (int)n.size());
         for(int i=0; i<m; i++)
         {
-            this->num[i] = nn[i] - '0' ;
-//            cout << nn[i] - '0' << endl; ///debug line
+            this->num[i] = n[i] - '0' ;
         }
-
-//        for(auto x : this->num) cout << x << " "; cout << endl; ///debug line
 
         return *this;
     }
-    bignum& operator=(const char* ncharstar)
+    bignum& operator=(const char* n_charStar)
     {
-        this->num = vector<int>(this->size);
-
-        string n = ncharstar;
-        string nn = "";
-        for(int i=n.size()-1; i>=0; i--) nn += n[i];
-//        cout << "from operator=, nn : " << nn << endl; ///debug line
-
-        int m = std::min((int)this->size, (int)nn.size());
-//        cout << "m : " << m << endl;
-        for(int i=0; i<m; i++)
-        {
-            this->num[i] = nn[i] - '0' ;
-//            cout << nn[i] - '0' << endl; ///debug line
-        }
-
-//        for(auto x : this->num) cout << x << " "; cout << endl; ///debug line
+        string s = n_charStar;
+        *this = s;
 
         return *this;
     }
-    template<typename T>
-    bignum& operator=(T n)
+    template<typename T> bignum& operator=(T n)
     {
-        this->num = vector<int>(this->size);
+        this->num = vector<unsigned int>(this->size);
         int i=0;
         while(n)
         {
@@ -95,24 +74,41 @@ public:
     ///2. int (included in template)
     ///
     /// note :
-    /// it's accepted to add numbers in "string" or "char*" format by converting them to "bigNum"
-    template<typename T>
-    bignum operator+ (T a)
+    /// it's only accepted to add numbers in "string" or "char*" format by converting them to "bigNum"
+    bignum operator+ (const bignum& n)
     {
-        bignum res(this->size);
-        res = *this;
+        bignum res(max(this->size, n.size) + 1);
 
-        res[0] += a;
-        for(int i=0; i<this->size; i++)
+        for(int i=0; i<min((int)this->size, (int)n.size); i++)
         {
-            if(res[i] < 10) break;
+            res.num[i] += this->num[i];
+            res.num[i] += n.num[i];
 
-            int temp = res[i] / 10;
-            res[i] = res[i] % 10;
-            res[i+1] += temp;
+            while(res.num[i] > 10)
+            {
+                res.num[i] -= 10;
+                res.num[i+1] ++;
+            }
+        }
+        for(int i=min((int)this->size, (int)n.size); i<max((int)this->size, (int)n.size); i++)
+        {
+            res.num[i] += (this->size > n.size ? this->num[i] : n.num[i]);
+            while(res.num[i] > 10)
+            {
+                res.num[i] -= 10;
+                res.num[i+1] ++;
+            }
         }
 
         return res;
+    }
+    template<typename T>
+    bignum operator+ (T a)
+    {
+        bignum left_side;
+        left_side = a;
+
+        return *this + left_side;
     }
 
 
@@ -152,14 +148,17 @@ public:
 int main() {
 
     ///tests      git:
-    bignum t;
-    string s = "1265";
-    t = "45862";
-    cout << t << endl;
-    t = t + 12 + 1 + 2;
-    cout << t << endl;
-    t = 12341;
-    cout << t << endl;
+    bignum t1, t2;
+//    string s = "1265124512368";
+    t1 = "111";
+    t2 = 13;
+    cout << t1 << endl;
+    cout << t2 << endl;
+    cout << t1 + t2;
+//    t = t + 12 + 1 + 2;
+//    cout << t << endl;
+//    t = 12341;
+//    cout << t << endl;
 
 
 
